@@ -11,7 +11,7 @@ import java.util.List;
 
 @Service
 public class CategoryServiceImpl implements CategoryService {
-    private Long nextId = 1L;
+
     @Autowired
     private CategoryRepository categoryRepository;
 
@@ -28,7 +28,6 @@ public class CategoryServiceImpl implements CategoryService {
         Category savedCategory = categoryRepository.findByCategoryName(category.getCategoryName());
         if (savedCategory != null)
             throw new APIException("Category with the name " + category.getCategoryName() + " already exists");
-        category.setCategoryId(nextId++);
         categoryRepository.save(category);
     }
 
@@ -37,7 +36,7 @@ public class CategoryServiceImpl implements CategoryService {
         Category category = categoryRepository.findById(categoryId)
                 .orElseThrow(() -> new ResourceNotFoundException("Category", "categoryId", categoryId));
         categoryRepository.delete(category);
-        return "Category with categoryId: " + categoryId + " deleted successfully !!";
+        return "Category with categoryId: " + categoryId + " deleted successfully";
     }
 
     @Override
