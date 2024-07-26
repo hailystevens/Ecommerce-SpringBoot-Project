@@ -16,6 +16,7 @@ import java.io.IOException;
 @RestController
 @RequestMapping("/api")
 public class ProductController {
+
     @Autowired
     ProductService productService;
 
@@ -77,8 +78,3 @@ public class ProductController {
         return new ResponseEntity<>(updatedProduct, HttpStatus.OK);
     }
 }
-
-
-
-
-
