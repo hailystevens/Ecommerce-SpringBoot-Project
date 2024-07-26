@@ -27,11 +27,12 @@ public class ProductServiceImpl implements ProductService {
     private ModelMapper modelMapper;
 
     @Override
-    public ProductDTO addProduct(Long categoryId, Product product) {
+    public ProductDTO addProduct(Long categoryId, ProductDTO productDTO) {
         Category category = categoryRepository.findById(categoryId)
                 .orElseThrow(() ->
                         new ResourceNotFoundException("Category", "categoryId", categoryId));
 
+        Product product = modelMapper.map(productDTO, Product.class);
         product.setImage("default.png");
         product.setCategory(category);
 
@@ -85,9 +86,12 @@ public class ProductServiceImpl implements ProductService {
     }
 
     @Override
-    public ProductDTO updateProduct(Long productId, Product product) {
+    public ProductDTO updateProduct(Long productId, ProductDTO productDTO) {
         Product productFromDb = productRepository.findById(productId)
-                .orElseThrow(() -> new ResourceNotFoundException("Product", "produuctId", productId));
+                .orElseThrow(() -> new ResourceNotFoundException("Product", "productId", productId));
+
+        Product product = modelMapper.map(productDTO, Product.class);
+
         productFromDb.setProductName(product.getProductName());
         productFromDb.setDescription(product.getDescription());
         productFromDb.setQuantity(product.getQuantity());
@@ -98,5 +102,12 @@ public class ProductServiceImpl implements ProductService {
         Product savedProduct = productRepository.save(productFromDb);
 
         return modelMapper.map(savedProduct, ProductDTO.class);
+    }
+
+    @Override
+    public void deleteProduct(Long productId) {
+        Product product = productRepository.findById(productId)
+                .orElseThrow(() -> new ResourceNotFoundException("Product", "productId", productId));
+        productRepository.delete(product);
     }
 }

@@ -1,6 +1,5 @@
 package com.ecommerce.project.controller;
 
-import com.ecommerce.project.model.Product;
 import com.ecommerce.project.payload.ProductDTO;
 import com.ecommerce.project.payload.ProductResponse;
 import com.ecommerce.project.service.ProductService;
@@ -14,12 +13,12 @@ import org.springframework.web.bind.annotation.*;
 public class ProductController {
 
     @Autowired
-    ProductService productService;
+    private ProductService productService;
 
     @PostMapping("/admin/categories/{categoryId}/product")
-    public ResponseEntity<ProductDTO> addProduct(@RequestBody Product product, @PathVariable Long categoryId) {
-        ProductDTO productDTO = productService.addProduct(categoryId, product);
-        return new ResponseEntity<>(productDTO, HttpStatus.CREATED);
+    public ResponseEntity<ProductDTO> addProduct(@RequestBody ProductDTO productDTO, @PathVariable Long categoryId) {
+        ProductDTO savedProductDTO = productService.addProduct(categoryId, productDTO);
+        return new ResponseEntity<>(savedProductDTO, HttpStatus.CREATED);
     }
 
     @GetMapping("/public/products")
@@ -37,13 +36,18 @@ public class ProductController {
     @GetMapping("/public/products/keyword/{keyword}")
     public ResponseEntity<ProductResponse> getProductsByKeyword(@PathVariable String keyword) {
         ProductResponse productResponse = productService.searchProductByKeyword(keyword);
-        return new ResponseEntity<>(productResponse, HttpStatus.FOUND);
+        return new ResponseEntity<>(productResponse, HttpStatus.OK);
     }
 
     @PutMapping("/admin/products/{productId}")
-    public ResponseEntity<ProductDTO> updateProduct(@RequestBody Product product, @PathVariable Long productId) {
-        ProductDTO updatedProductDTO = productService.updateProduct(productId, product);
+    public ResponseEntity<ProductDTO> updateProduct(@RequestBody ProductDTO productDTO, @PathVariable Long productId) {
+        ProductDTO updatedProductDTO = productService.updateProduct(productId, productDTO);
         return new ResponseEntity<>(updatedProductDTO, HttpStatus.OK);
+    }
 
+    @DeleteMapping("/admin/products/{productId}")
+    public ResponseEntity<Void> deleteProduct(@PathVariable Long productId) {
+        productService.deleteProduct(productId);
+        return new ResponseEntity<>(HttpStatus.NO_CONTENT);
     }
 }
