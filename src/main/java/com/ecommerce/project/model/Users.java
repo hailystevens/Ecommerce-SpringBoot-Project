@@ -15,24 +15,33 @@ import java.util.Set;
 @Entity
 @Data
 @NoArgsConstructor
-@Table(name = "users")
+@Table(name = "users",
+        uniqueConstraints = {
+                @UniqueConstraint(columnNames = "username"),
+                @UniqueConstraint(columnNames = "email")
+
+        })
 public class Users {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    protected Long userId;
+    @Column(name = "user_id")
+    private Long userId;
 
     @NotBlank
     @Size(max = 20)
+    @Column(name = "username")
     private String userName;
 
     @NotBlank
     @Size(max = 50)
     @Email
+    @Column(name = "email")
     private String email;
 
     @NotBlank
     @Size(max = 120)
+    @Column(name = "password")
     private String password;
 
     public Users(String userName, String email, String password) {
