@@ -35,9 +35,15 @@ public class ProductController {
     }
 
     @GetMapping("/public/products/keyword/{keyword}")
-    public ResponseEntity<ProductResponse> getProductsByKeyword(@PathVariable String keyword){
+    public ResponseEntity<ProductResponse> getProductsByKeyword(@PathVariable String keyword) {
         ProductResponse productResponse = productService.searchProductByKeyword(keyword);
         return new ResponseEntity<>(productResponse, HttpStatus.FOUND);
+    }
+
+    @PutMapping("/admin/products/{productId}")
+    public ResponseEntity<ProductDTO> updateProduct(@RequestBody Product product, @PathVariable Long productId) {
+        ProductDTO updatedProductDTO = productService.updateProduct(productId, product);
+        return new ResponseEntity<>(updatedProductDTO, HttpStatus.OK);
 
     }
 }
