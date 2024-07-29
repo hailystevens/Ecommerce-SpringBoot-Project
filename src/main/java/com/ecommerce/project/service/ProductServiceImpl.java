@@ -23,6 +23,7 @@ import java.util.List;
 
 @Service
 public class ProductServiceImpl implements ProductService {
+
     @Autowired
     private ProductRepository productRepository;
 
@@ -64,7 +65,7 @@ public class ProductServiceImpl implements ProductService {
             Product savedProduct = productRepository.save(product);
             return modelMapper.map(savedProduct, ProductDTO.class);
         } else {
-            throw new APIException("Product already exist");
+            throw new APIException("Product already exist!!");
         }
     }
 
@@ -108,7 +109,7 @@ public class ProductServiceImpl implements ProductService {
 
         List<Product> products = pageProducts.getContent();
 
-        if (products.isEmpty()) {
+        if(products.isEmpty()){
             throw new APIException(category.getCategoryName() + " category does not have any products");
         }
 
@@ -136,12 +137,11 @@ public class ProductServiceImpl implements ProductService {
         Page<Product> pageProducts = productRepository.findByProductNameLikeIgnoreCase('%' + keyword + '%', pageDetails);
 
         List<Product> products = pageProducts.getContent();
-
         List<ProductDTO> productDTOS = products.stream()
                 .map(product -> modelMapper.map(product, ProductDTO.class))
                 .toList();
 
-        if (products.isEmpty()) {
+        if(products.isEmpty()){
             throw new APIException("Products not found with keyword: " + keyword);
         }
 
@@ -159,7 +159,9 @@ public class ProductServiceImpl implements ProductService {
     public ProductDTO updateProduct(Long productId, ProductDTO productDTO) {
         Product productFromDb = productRepository.findById(productId)
                 .orElseThrow(() -> new ResourceNotFoundException("Product", "productId", productId));
+
         Product product = modelMapper.map(productDTO, Product.class);
+
         productFromDb.setProductName(product.getProductName());
         productFromDb.setDescription(product.getDescription());
         productFromDb.setQuantity(product.getQuantity());
@@ -192,9 +194,6 @@ public class ProductServiceImpl implements ProductService {
         Product updatedProduct = productRepository.save(productFromDb);
         return modelMapper.map(updatedProduct, ProductDTO.class);
     }
+
+
 }
-
-
-
-
-
