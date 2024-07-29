@@ -16,10 +16,11 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 @Service
-public class CartServiceImpl implements CartService{
+public class CartServiceImpl implements CartService {
     @Autowired
     private CartRepository cartRepository;
 
@@ -37,7 +38,7 @@ public class CartServiceImpl implements CartService{
 
     @Override
     public CartDTO addProductToCart(Long productId, Integer quantity) {
-        Cart cart  = createCart();
+        Cart cart = createCart();
 
         Product product = productRepository.findById(productId)
                 .orElseThrow(() -> new ResourceNotFoundException("Product", "productId", productId));
@@ -88,16 +89,40 @@ public class CartServiceImpl implements CartService{
         return cartDTO;
     }
 
+    @Override
+    public List<CartDTO> getAllCarts() {
+        List<Cart> carts = cartRepository.findAll();
+
+        if (carts.size() == 0) {
+            throw new APIException("No cart exists");
+        }
+
+        List<CartDTO> cartDTOs = carts.stream().map(cart -> {
+            CartDTO cartDTO = modelMapper.map(cart, CartDTO.class);
+
+            List<ProductDTO> products = cart.getCartItems().stream()
+                    .map(p -> modelMapper.map(p.getProduct(), ProductDTO.class)).collect(Collectors.toList());
+
+            cartDTO.setProducts(products);
+
+            return cartDTO;
+
+        }).collect(Collectors.toList());
+
+        return cartDTOs;
+    }
+
+
     private Cart createCart() {
-        Cart userCart  = cartRepository.findCartByEmail(authUtil.loggedInEmail());
-        if(userCart != null){
+        Cart userCart = cartRepository.findCartByEmail(authUtil.loggedInEmail());
+        if (userCart != null) {
             return userCart;
         }
 
         Cart cart = new Cart();
         cart.setTotalPrice(0.00);
         cart.setUser(authUtil.loggedInUser());
-        Cart newCart =  cartRepository.save(cart);
+        Cart newCart = cartRepository.save(cart);
 
         return newCart;
     }
