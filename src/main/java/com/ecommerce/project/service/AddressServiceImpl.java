@@ -12,11 +12,12 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Service
 public class AddressServiceImpl implements AddressService {
     @Autowired
-    private AddressRepository addressRepo;
+    private AddressRepository addressRepository;
 
     @Autowired
     private UserRepository userRepo;
@@ -26,6 +27,8 @@ public class AddressServiceImpl implements AddressService {
 
     @Autowired
     private AuthUtil authUtil;
+    @Autowired
+    private AddressRepository addressRepo;
 
     @Override
     public AddressDTO createAddress(AddressDTO addressDTO, User user) {
@@ -36,5 +39,14 @@ public class AddressServiceImpl implements AddressService {
         user.setAddresses(addressesList);
         Address savedAddress = addressRepo.save(address);
         return modelMapper.map(savedAddress, AddressDTO.class);
+    }
+
+    @Override
+    public List<AddressDTO> getAddresses() {
+        List<Address> addresses = addressRepo.findAll();
+        List<AddressDTO> addressDTOS = addresses.stream()
+                .map(address -> modelMapper.map(address, AddressDTO.class))
+                .toList();
+        return addressDTOS;
     }
 }
