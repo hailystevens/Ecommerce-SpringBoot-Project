@@ -1,14 +1,39 @@
 <!DOCTYPE html>
-<html lang="en" xmlns:th="http://www.thymeleaf.org">
-<head th:replace="fragments/header :: head"></head>
+<html lang="en" xmlns:th="http://www.w3.org/1999/xhtml">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="/css/styles.css">
+    <title>User Profile</title>
+</head>
 <body>
-<header th:replace="fragments/header :: header"></header>
-<main role="main" class="container">
-    <div class="starter-template">
-        <h1>User Profile</h1>
-        <!-- User profile details here -->
+<div th:insert="fragments/header :: header"></div>
+<div class="container">
+    <h1>User Profile</h1>
+    <div class="profile-container">
+        <div class="profile-info">
+            <h2>Personal Information</h2>
+            <p><strong>Username:</strong> <span id="username">JohnDoe</span></p>
+            <p><strong>Email:</strong> <span id="email">johndoe@example.com</span></p>
+            <button onclick="editProfile()">Edit Profile</button>
+        </div>
+        <div class="profile-orders">
+            <h2>Order History</h2>
+            <!-- Order history list will be displayed here -->
+            <ul id="order-history">
+                <li>Order #1234 - Completed</li>
+                <li>Order #5678 - In Progress</li>
+                <!-- More orders will be listed here -->
+            </ul>
+        </div>
     </div>
-</main>
-<footer th:replace="fragments/footer :: footer"></footer>
+</div>
+
+<script>
+    function editProfile() {
+        // Function to handle profile editing
+        alert('Edit profile functionality to be implemented');
+    }
+</script>
 </body>
 </html>
