@@ -74,14 +74,17 @@ public class WebSecurityConfig {
                         auth.requestMatchers("/api/auth/**").permitAll()
                                 .requestMatchers("/v3/api-docs/**").permitAll()
                                 .requestMatchers("/h2-console/**").permitAll()
-                                // .requestMatchers("/api/admin/**").permitAll()
-                                //  .requestMatchers("/api/public/**").permitAll()
+                                .requestMatchers("/api/admin/**").permitAll() //comment out when in prod
+                                .requestMatchers("/api/public/**").permitAll()//comment out when in prod
                                 .requestMatchers("/swagger-ui/**").permitAll()
                                 .requestMatchers("/api/test/**").permitAll()
                                 .requestMatchers("/images/**").permitAll()
                                 .requestMatchers("/css/**").permitAll()
                                 .requestMatchers("/js/**").permitAll()
                                 .requestMatchers("/static/**").permitAll()
+                                .requestMatchers("/webjars/**").permitAll()  // Ensure webjars are accessible if used
+                                .requestMatchers("/**").permitAll()  // Allow public access to the root endpoint and any JSP files served from it
+
 
                                 .anyRequest().authenticated()
                 );
