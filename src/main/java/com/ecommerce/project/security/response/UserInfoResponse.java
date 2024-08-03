@@ -3,7 +3,6 @@ package com.ecommerce.project.security.response;
 import java.util.List;
 
 public class UserInfoResponse {
-
     private Long id;
     private String jwtToken;
     private String username;
@@ -27,7 +26,7 @@ public class UserInfoResponse {
     }
 
     public void setId(Long id) {
-        id = id;
+        this.id = id;
     }
 
     public String getJwtToken() {
@@ -54,3 +53,5 @@ public class UserInfoResponse {
         this.roles = roles;
     }
 }
+
+

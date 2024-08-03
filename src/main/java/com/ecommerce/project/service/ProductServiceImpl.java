@@ -118,7 +118,7 @@ public class ProductServiceImpl implements ProductService {
 
         List<Product> products = pageProducts.getContent();
 
-        if (products.isEmpty()) {
+        if(products.isEmpty()){
             throw new APIException(category.getCategoryName() + " category does not have any products");
         }
 
@@ -150,7 +150,7 @@ public class ProductServiceImpl implements ProductService {
                 .map(product -> modelMapper.map(product, ProductDTO.class))
                 .toList();
 
-        if (products.isEmpty()) {
+        if(products.isEmpty()){
             throw new APIException("Products not found with keyword: " + keyword);
         }
 

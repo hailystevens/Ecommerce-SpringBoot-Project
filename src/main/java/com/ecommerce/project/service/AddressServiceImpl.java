@@ -11,10 +11,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
-import java.util.stream.Collectors;
 
 @Service
-public class AddressServiceImpl implements AddressService {
+public class AddressServiceImpl implements AddressService{
     @Autowired
     private AddressRepository addressRepository;
 
@@ -91,6 +90,6 @@ public class AddressServiceImpl implements AddressService {
 
         addressRepository.delete(addressFromDatabase);
 
-        return "Successfully deleted: " + addressId;
+        return "Address deleted successfully with addressId: " + addressId;
     }
 }
