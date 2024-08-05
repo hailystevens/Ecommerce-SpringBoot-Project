@@ -14,7 +14,6 @@ import com.ecommerce.project.security.services.UserDetailsImpl;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpHeaders;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseCookie;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -23,12 +22,14 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.stereotype.Controller;
+import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.*;
 import java.util.stream.Collectors;
 
-@RestController
+@Controller
 @RequestMapping("/api/auth")
 public class AuthController {
 
@@ -39,25 +40,24 @@ public class AuthController {
     private AuthenticationManager authenticationManager;
 
     @Autowired
-    UserRepository userRepository;
+    private UserRepository userRepository;
 
     @Autowired
-    RoleRepository roleRepository;
+    private RoleRepository roleRepository;
 
     @Autowired
-    PasswordEncoder encoder;
+    private PasswordEncoder encoder;
 
     @PostMapping("/signin")
-    public ResponseEntity<?> authenticateUser(@RequestBody LoginRequest loginRequest) {
+    public String authenticateUser(@Valid @RequestBody LoginRequest loginRequest, Model model) {
         Authentication authentication;
         try {
             authentication = authenticationManager
                     .authenticate(new UsernamePasswordAuthenticationToken(loginRequest.getUsername(), loginRequest.getPassword()));
         } catch (AuthenticationException exception) {
-            Map<String, Object> map = new HashMap<>();
-            map.put("message", "Bad credentials");
-            map.put("status", false);
-            return new ResponseEntity<Object>(map, HttpStatus.NOT_FOUND);
+            model.addAttribute("message", "Bad credentials");
+            model.addAttribute("status", false);
+            return "auth/login"; // Assuming you have login.jsp in WEB-INF/jsp/auth
         }
 
         SecurityContextHolder.getContext().setAuthentication(authentication);
@@ -73,19 +73,22 @@ public class AuthController {
         UserInfoResponse response = new UserInfoResponse(userDetails.getId(),
                 userDetails.getUsername(), roles, jwtCookie.toString());
 
-        return ResponseEntity.ok().header(HttpHeaders.SET_COOKIE,
-                        jwtCookie.toString())
-                .body(response);
+        model.addAttribute("user", response);
+        model.addAttribute("jwtCookie", jwtCookie.toString());
+
+        return "auth/user-details"; // Assuming you have user-details.jsp in WEB-INF/jsp/auth
     }
 
     @PostMapping("/signup")
-    public ResponseEntity<?> registerUser(@Valid @RequestBody SignupRequest signUpRequest) {
+    public String registerUser(@Valid @RequestBody SignupRequest signUpRequest, Model model) {
         if (userRepository.existsByUserName(signUpRequest.getUsername())) {
-            return ResponseEntity.badRequest().body(new MessageResponse("Error: Username is already taken!"));
+            model.addAttribute("message", "Error: Username is already taken!");
+            return "auth/register"; // Assuming you have register.jsp in WEB-INF/jsp/auth
         }
 
         if (userRepository.existsByEmail(signUpRequest.getEmail())) {
-            return ResponseEntity.badRequest().body(new MessageResponse("Error: Email is already in use!"));
+            model.addAttribute("message", "Error: Email is already in use!");
+            return "auth/register"; // Assuming you have register.jsp in WEB-INF/jsp/auth
         }
 
         // Create new user's account
@@ -107,13 +110,11 @@ public class AuthController {
                         Role adminRole = roleRepository.findByRoleName(AppRole.ROLE_ADMIN)
                                 .orElseThrow(() -> new RuntimeException("Error: Role is not found."));
                         roles.add(adminRole);
-
                         break;
                     case "seller":
                         Role modRole = roleRepository.findByRoleName(AppRole.ROLE_SELLER)
                                 .orElseThrow(() -> new RuntimeException("Error: Role is not found."));
                         roles.add(modRole);
-
                         break;
                     default:
                         Role userRole = roleRepository.findByRoleName(AppRole.ROLE_USER)
@@ -126,20 +127,22 @@ public class AuthController {
         user.setRoles(roles);
         userRepository.save(user);
 
-        return ResponseEntity.ok(new MessageResponse("User registered successfully!"));
+        model.addAttribute("message", "User registered successfully!");
+        return "auth/register"; // Assuming you have register.jsp in WEB-INF/jsp/auth
     }
 
     @GetMapping("/username")
-    public String currentUserName(Authentication authentication){
+    @ResponseBody
+    public String currentUserName(Authentication authentication) {
         if (authentication != null)
             return authentication.getName();
         else
             return "";
     }
 
-
     @GetMapping("/user")
-    public ResponseEntity<?> getUserDetails(Authentication authentication){
+    @ResponseBody
+    public ResponseEntity<?> getUserDetails(Authentication authentication) {
         UserDetailsImpl userDetails = (UserDetailsImpl) authentication.getPrincipal();
 
         List<String> roles = userDetails.getAuthorities().stream()
@@ -153,7 +156,7 @@ public class AuthController {
     }
 
     @PostMapping("/signout")
-    public ResponseEntity<?> signoutUser(){
+    public ResponseEntity<?> signoutUser() {
         ResponseCookie cookie = jwtUtils.getCleanJwtCookie();
         return ResponseEntity.ok().header(HttpHeaders.SET_COOKIE,
                         cookie.toString())
