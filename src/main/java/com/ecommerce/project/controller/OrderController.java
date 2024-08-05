@@ -1,15 +1,15 @@
 package com.ecommerce.project.controller;
 
-import com.ecommerce.project.payload.OrderDTO;
-import com.ecommerce.project.payload.OrderRequestDTO;
+import com.ecommerce.project.DTO.OrderDTO;
+import com.ecommerce.project.DTO.OrderRequestDTO;
 import com.ecommerce.project.service.OrderService;
 import com.ecommerce.project.util.AuthUtil;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
+import org.springframework.stereotype.Controller;
+import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 
-@RestController
+@Controller
 @RequestMapping("/api")
 public class OrderController {
 
@@ -20,7 +20,9 @@ public class OrderController {
     private AuthUtil authUtil;
 
     @PostMapping("/order/users/payments/{paymentMethod}")
-    public ResponseEntity<OrderDTO> orderProducts(@PathVariable String paymentMethod, @RequestBody OrderRequestDTO orderRequestDTO) {
+    public String orderProducts(@PathVariable String paymentMethod,
+                                @RequestBody OrderRequestDTO orderRequestDTO,
+                                Model model) {
         String emailId = authUtil.loggedInEmail();
         OrderDTO order = orderService.placeOrder(
                 emailId,
@@ -31,6 +33,7 @@ public class OrderController {
                 orderRequestDTO.getPgStatus(),
                 orderRequestDTO.getPgResponseMessage()
         );
-        return new ResponseEntity<>(order, HttpStatus.CREATED);
+        model.addAttribute("order", order);
+        return "order/order-detail"; // Assuming you have order-detail.jsp in WEB-INF/jsp/order
     }
 }
