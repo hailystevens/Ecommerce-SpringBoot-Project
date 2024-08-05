@@ -5,8 +5,9 @@ import com.ecommerce.project.exceptions.ResourceNotFoundException;
 import com.ecommerce.project.model.Cart;
 import com.ecommerce.project.model.CartItem;
 import com.ecommerce.project.model.Product;
-import com.ecommerce.project.payload.CartDTO;
-import com.ecommerce.project.payload.ProductDTO;
+import com.ecommerce.project.DTO.CartDTO;
+import com.ecommerce.project.DTO.ProductDTO;
+import com.ecommerce.project.model.User;
 import com.ecommerce.project.repositories.CartItemRepository;
 import com.ecommerce.project.repositories.CartRepository;
 import com.ecommerce.project.repositories.ProductRepository;
@@ -264,4 +265,10 @@ public class CartServiceImpl implements CartService{
         cartItem = cartItemRepository.save(cartItem);
     }
 
+    @Override
+    public int getCartItemCount() {
+        User user = authUtil.loggedInUser(); // Assuming AuthUtil has a method to get the logged-in user
+        Cart cart = cartRepository.findCartByEmail(String.valueOf(user.getUserId()));
+        return cart.getCartItems().size();
+    }
 }
