@@ -1,6 +1,6 @@
 package com.ecommerce.project.service;
 
-import com.ecommerce.project.DTO.OrderDTO;
+import com.ecommerce.project.payload.OrderDTO;
 import jakarta.transaction.Transactional;
 
 public interface OrderService {

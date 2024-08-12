@@ -1,89 +1,80 @@
 package com.ecommerce.project.controller;
 
+import com.ecommerce.project.payload.ProductDTO;
+import com.ecommerce.project.payload.ProductResponse;
 import com.ecommerce.project.config.AppConstants;
-import com.ecommerce.project.DTO.ProductDTO;
-import com.ecommerce.project.DTO.ProductResponse;
 import com.ecommerce.project.service.ProductService;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Controller;
-import org.springframework.ui.Model;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
 
-@Controller
+@RestController
 @RequestMapping("/api")
 public class ProductController {
 
     @Autowired
-    private ProductService productService;
+    ProductService productService;
 
     @PostMapping("/admin/categories/{categoryId}/product")
-    public String addProduct(@Valid @RequestBody ProductDTO productDTO,
-                             @PathVariable Long categoryId, Model model){
+    public ResponseEntity<ProductDTO> addProduct(@Valid @RequestBody ProductDTO productDTO,
+                                                 @PathVariable Long categoryId){
         ProductDTO savedProductDTO = productService.addProduct(categoryId, productDTO);
-        model.addAttribute("product", savedProductDTO);
-        return "product/product-detail"; // Assuming you have product-detail.jsp in WEB-INF/jsp/product
+        return new ResponseEntity<>(savedProductDTO, HttpStatus.CREATED);
     }
 
     @GetMapping("/public/products")
-    public String getAllProducts(
+    public ResponseEntity<ProductResponse> getAllProducts(
             @RequestParam(name = "pageNumber", defaultValue = AppConstants.PAGE_NUMBER, required = false) Integer pageNumber,
             @RequestParam(name = "pageSize", defaultValue = AppConstants.PAGE_SIZE, required = false) Integer pageSize,
             @RequestParam(name = "sortBy", defaultValue = AppConstants.SORT_PRODUCTS_BY, required = false) String sortBy,
-            @RequestParam(name = "sortOrder", defaultValue = AppConstants.SORT_DIR, required = false) String sortOrder,
-            Model model){
+            @RequestParam(name = "sortOrder", defaultValue = AppConstants.SORT_DIR, required = false) String sortOrder
+    ){
         ProductResponse productResponse = productService.getAllProducts(pageNumber, pageSize, sortBy, sortOrder);
-        model.addAttribute("products", productResponse);
-        return "product/product-list"; // Assuming you have product-list.jsp in WEB-INF/jsp/product
+        return new ResponseEntity<>(productResponse,HttpStatus.OK);
     }
 
     @GetMapping("/public/categories/{categoryId}/products")
-    public String getProductsByCategory(@PathVariable Long categoryId,
-                                        @RequestParam(name = "pageNumber", defaultValue = AppConstants.PAGE_NUMBER, required = false) Integer pageNumber,
-                                        @RequestParam(name = "pageSize", defaultValue = AppConstants.PAGE_SIZE, required = false) Integer pageSize,
-                                        @RequestParam(name = "sortBy", defaultValue = AppConstants.SORT_PRODUCTS_BY, required = false) String sortBy,
-                                        @RequestParam(name = "sortOrder", defaultValue = AppConstants.SORT_DIR, required = false) String sortOrder,
-                                        Model model){
+    public ResponseEntity<ProductResponse> getProductsByCategory(@PathVariable Long categoryId,
+                                                                 @RequestParam(name = "pageNumber", defaultValue = AppConstants.PAGE_NUMBER, required = false) Integer pageNumber,
+                                                                 @RequestParam(name = "pageSize", defaultValue = AppConstants.PAGE_SIZE, required = false) Integer pageSize,
+                                                                 @RequestParam(name = "sortBy", defaultValue = AppConstants.SORT_PRODUCTS_BY, required = false) String sortBy,
+                                                                 @RequestParam(name = "sortOrder", defaultValue = AppConstants.SORT_DIR, required = false) String sortOrder){
         ProductResponse productResponse = productService.searchByCategory(categoryId, pageNumber, pageSize, sortBy, sortOrder);
-        model.addAttribute("products", productResponse);
-        return "product/product-list"; // Assuming you have product-list.jsp in WEB-INF/jsp/product
+        return new ResponseEntity<>(productResponse, HttpStatus.OK);
     }
 
     @GetMapping("/public/products/keyword/{keyword}")
-    public String getProductsByKeyword(@PathVariable String keyword,
-                                       @RequestParam(name = "pageNumber", defaultValue = AppConstants.PAGE_NUMBER, required = false) Integer pageNumber,
-                                       @RequestParam(name = "pageSize", defaultValue = AppConstants.PAGE_SIZE, required = false) Integer pageSize,
-                                       @RequestParam(name = "sortBy", defaultValue = AppConstants.SORT_PRODUCTS_BY, required = false) String sortBy,
-                                       @RequestParam(name = "sortOrder", defaultValue = AppConstants.SORT_DIR, required = false) String sortOrder,
-                                       Model model){
+    public ResponseEntity<ProductResponse> getProductsByKeyword(@PathVariable String keyword,
+                                                                @RequestParam(name = "pageNumber", defaultValue = AppConstants.PAGE_NUMBER, required = false) Integer pageNumber,
+                                                                @RequestParam(name = "pageSize", defaultValue = AppConstants.PAGE_SIZE, required = false) Integer pageSize,
+                                                                @RequestParam(name = "sortBy", defaultValue = AppConstants.SORT_PRODUCTS_BY, required = false) String sortBy,
+                                                                @RequestParam(name = "sortOrder", defaultValue = AppConstants.SORT_DIR, required = false) String sortOrder){
         ProductResponse productResponse = productService.searchProductByKeyword(keyword, pageNumber, pageSize, sortBy, sortOrder);
-        model.addAttribute("products", productResponse);
-        return "product/product-list"; // Assuming you have product-list.jsp in WEB-INF/jsp/product
+        return new ResponseEntity<>(productResponse, HttpStatus.FOUND);
     }
 
     @PutMapping("/admin/products/{productId}")
-    public String updateProduct(@Valid @RequestBody ProductDTO productDTO,
-                                @PathVariable Long productId, Model model){
+    public ResponseEntity<ProductDTO> updateProduct(@Valid @RequestBody ProductDTO productDTO,
+                                                    @PathVariable Long productId){
         ProductDTO updatedProductDTO = productService.updateProduct(productId, productDTO);
-        model.addAttribute("product", updatedProductDTO);
-        return "product/product-detail"; // Assuming you have product-detail.jsp in WEB-INF/jsp/product
+        return new ResponseEntity<>(updatedProductDTO, HttpStatus.OK);
     }
 
     @DeleteMapping("/admin/products/{productId}")
-    public String deleteProduct(@PathVariable Long productId, Model model){
+    public ResponseEntity<ProductDTO> deleteProduct(@PathVariable Long productId){
         ProductDTO deletedProduct = productService.deleteProduct(productId);
-        model.addAttribute("product", deletedProduct);
-        return "product/product-detail"; // Assuming you have product-detail.jsp in WEB-INF/jsp/product
+        return new ResponseEntity<>(deletedProduct, HttpStatus.OK);
     }
 
     @PutMapping("/products/{productId}/image")
-    public String updateProductImage(@PathVariable Long productId,
-                                     @RequestParam("image") MultipartFile image, Model model) throws IOException {
+    public ResponseEntity<ProductDTO> updateProductImage(@PathVariable Long productId,
+                                                         @RequestParam("image")MultipartFile image) throws IOException {
         ProductDTO updatedProduct = productService.updateProductImage(productId, image);
-        model.addAttribute("product", updatedProduct);
-        return "product/product-detail"; // Assuming you have product-detail.jsp in WEB-INF/jsp/product
+        return new ResponseEntity<>(updatedProduct, HttpStatus.OK);
     }
 }

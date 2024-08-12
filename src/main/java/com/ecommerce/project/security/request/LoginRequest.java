@@ -3,6 +3,7 @@ package com.ecommerce.project.security.request;
 import jakarta.validation.constraints.NotBlank;
 
 public class LoginRequest {
+
     @NotBlank
     private String username;
 

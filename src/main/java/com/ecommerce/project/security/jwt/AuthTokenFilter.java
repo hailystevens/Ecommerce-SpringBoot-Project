@@ -61,4 +61,3 @@ public class AuthTokenFilter extends OncePerRequestFilter {
         return jwt;
     }
 }
-
